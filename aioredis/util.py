@@ -1,6 +1,6 @@
 import asyncio
-
-from urllib.parse import urlparse, parse_qsl
+from typing import Any, Dict, List, Tuple, Union
+from urllib.parse import parse_qsl, urlparse
 
 from .log import logger
 
@@ -18,7 +18,7 @@ _converters = {
 }
 
 
-def encode_command(*args, buf=None):
+def encode_command(*args: Union[bytes, bytearray, str, int, float], buf: bytearray=None) -> bytearray:
     """Encodes arguments into redis bulk-strings array.
 
     Raises TypeError if any of args not of bytearray, bytes, float, int, or str
@@ -38,7 +38,7 @@ def encode_command(*args, buf=None):
     return buf
 
 
-def decode(obj, encoding):
+def decode(obj: Union[bytes, List[Any]], encoding: str):
     if isinstance(obj, bytes):
         return obj.decode(encoding)
     elif isinstance(obj, list):
@@ -121,7 +121,7 @@ def _set_exception(fut, exception):
         fut.set_exception(exception)
 
 
-def parse_url(url):
+def parse_url(url: str) -> Tuple:
     """Parse Redis connection URI.
 
     Parse according to IANA specs:
@@ -147,7 +147,7 @@ def parse_url(url):
         "Unsupported URI scheme", r.scheme)
     if r.scheme == '':
         return url, {}
-    query = {}
+    query: Dict[Any, Any] = {}
     for p, v in parse_qsl(r.query, keep_blank_values=True):
         assert p not in query, ("Multiple parameters are not allowed", p, v)
         assert v, ("Empty parameters are not allowed", p, v)
