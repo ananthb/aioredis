@@ -120,8 +120,9 @@ def _set_exception(fut, exception):
     else:
         fut.set_exception(exception)
 
+_ParamsType = Dict[str, Union[str, bool]]
 
-def parse_url(url: str) -> Tuple:
+def parse_url(url: str) -> Tuple[Any, _ParamsType]:
     """Parse Redis connection URI.
 
     Parse according to IANA specs:
@@ -147,7 +148,7 @@ def parse_url(url: str) -> Tuple:
         "Unsupported URI scheme", r.scheme)
     if r.scheme == '':
         return url, {}
-    query: Dict[Any, Any] = {}
+    query: Dict[str, Union[str, bool]] = {}
     for p, v in parse_qsl(r.query, keep_blank_values=True):
         assert p not in query, ("Multiple parameters are not allowed", p, v)
         assert v, ("Empty parameters are not allowed", p, v)
@@ -169,7 +170,7 @@ def parse_url(url: str) -> Tuple:
     return address, options
 
 
-def _parse_uri_options(params, path, password):
+def _parse_uri_options(params: _ParamsType, path: str, password: str) -> _ParamsType:
 
     def parse_db_num(val):
         if not val:
